@@ -6,16 +6,28 @@ package lab2;
 public final class SchedLock {
     final String name;
 
+    private boolean _isLocked = false;
+    String lockedBy = null;
+
     /** Создаётся в setup() тестовой программы; зарегистрируйте лок в планировщике s. */
-    public SchedLock(Scheduler s, String name) { this.name = name; }
+    public SchedLock(Scheduler s, String name) {
+        this.name = name;
+        s.registerLock(this);
+    }
 
     /** Пауза; если лок занят — ждать, не участвуя в выборе; затем стать владельцем. */
     public void lock() {
-        throw new UnsupportedOperationException("TODO этап 2: SchedLock.lock");
+        Scheduler.beforeShared(() -> !_isLocked);
+        _isLocked = true;
+        lockedBy = Scheduler.currentName();
+        Scheduler.log("lock " + name);
     }
 
     /** Пауза; освободить лок, ждавшие потоки снова могут быть выбраны. */
     public void unlock() {
-        throw new UnsupportedOperationException("TODO этап 2: SchedLock.unlock");
+        Scheduler.beforeShared(() -> true);
+        _isLocked = false;
+        lockedBy = null;
+        Scheduler.log("unlock " + name);
     }
 }
